@@ -1,0 +1,19 @@
+# Copier answers — DO NOT EDIT BY HAND.
+# Run `uvx copier update --skip-answered` to pull template improvements.
+_commit: v0.1.2
+_src_path: gh:stromy-org/python-library-template
+author_email: william.masquelier@stromy.com.au
+author_name: William Masquelier
+consumer_repos_to_notify: media-gen-mcp,stromy-workflows-mcp
+depends_on_internal_libs: false
+description: 'Client-neutral BYOK credential plane: split reader/writer stores, bound
+    single-use registration grants, hardened registration routes and provider validators.'
+github_owner: stromy-org
+github_repo: stromy-byok
+has_cli: false
+module_slug: stromy_byok
+optional_extras: azure
+package_slug: stromy-byok
+project_name: Stromy BYOK
+python_version: '3.11'
+surface_class: minimal

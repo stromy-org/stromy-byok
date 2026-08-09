@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "stromy-byok"
+version = "0.1.0"
+description = "Client-neutral BYOK credential plane: split reader/writer stores, bound single-use registration grants, hardened registration routes and provider validators."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "William Masquelier", email = "william.masquelier@stromy.com.au" }]
+dependencies = [
+    # The registration page is a pair of Starlette handlers the adopting app
+    # mounts on its own router; Starlette arrives transitively with every
+    # FastMCP consumer, but it is a real import here so it is declared.
+    "starlette>=0.37",
+    # Starlette's `request.form()` hard-asserts on python-multipart being
+    # importable — without it the registration POST 500s at parse time, before
+    # any of our code runs. It is a real runtime dependency of routes.py, not
+    # a test-only one.
+    "python-multipart>=0.0.9",
+    # Provider validation probes. Sync + async clients, per-request timeouts
+    # and `follow_redirects=False` are all load-bearing for the hardening.
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+# Key Vault backing store. Optional so a consumer that only needs the
+# catalogue, grants or the credential scope does not pull the Azure SDK.
+azure = [
+    "azure-identity>=1.17",
+    "azure-keyvault-secrets>=4.8",
+]
+all = ["stromy-byok[azure]"]
+
+# PEP 735 dependency-groups — installed by default with `uv sync` (no --extra needed).
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "pyright>=1.1",
+]
+
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/stromy_byok"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["ASYNC", "B", "PERF", "S", "E", "F", "W", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# S105/S106: this package's tests are *about* credentials, so they are full of
+# deliberately fake key strings ("sk-CLIENT", "apify-STROMY"). Flagging those
+# is the one place the hardcoded-secret rule is pure noise — and suppressing it
+# per-line would bury the assertions the security tests exist to make.
+"tests/**/*.py" = ["S101", "S105", "S106"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+include = ["src/stromy_byok"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "unit: Fast, isolated unit tests",
+    "contract: Public API contract stability tests",
+    "integration: End-to-end tests",
+    # Add `requires_<dep>` markers as you add optional-dependency-gated tests.
+]
