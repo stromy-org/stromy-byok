@@ -16,6 +16,8 @@ registration flow, and :mod:`stromy_byok.context` for the runtime scope that
 scrubs ambient authority before injecting a caller's own.
 """
 
+from importlib.metadata import version as _metadata_version
+
 from stromy_byok.catalogue import (
     CATALOGUE_VERSION,
     CredentialCatalogue,
@@ -70,7 +72,13 @@ from stromy_byok.store import (
 )
 from stromy_byok.validators import classify_status, validate_key, validate_key_async
 
-__version__ = "0.1.0"
+#: Read from installed package metadata rather than hand-maintained here.
+#: A literal silently desyncs from pyproject.toml on the first version bump
+#: that forgets it — and it desynced immediately, on v0.2.0: the consumer
+#: pinned the right tag, uv resolved the right commit, and the package still
+#: reported 0.1.0, so the one signal an operator would use to confirm a
+#: rollout lied while everything underneath was correct.
+__version__ = _metadata_version("stromy-byok")
 
 __all__ = [
     "CATALOGUE_VERSION",
