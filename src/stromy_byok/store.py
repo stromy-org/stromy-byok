@@ -153,11 +153,21 @@ class CredentialWriter(Protocol):
         *,
         outcome: ValidationOutcome | None = None,
     ) -> None:
-        """Write a new **enabled** version, creating the secret if absent.
+        """Write a new **enabled** version under the naming strategy's primary.
 
         Rotation and first registration are the same operation: a new enabled
         version. That is what makes rotate-after-disconnect work without a
         purge.
+
+        **Superseding is part of the write.** Under a compatibility
+        :class:`SecretNaming` the primary is not the only place a value can
+        live, so writing it also disables every *other* name in
+        ``read_order`` — those are superseded locations by definition, and
+        :meth:`get_enabled` short-circuits on the primary anyway, so nothing is
+        lost. Skipping it would leave the caller's previous key enabled in the
+        vault after a rotation: unreachable, but live, and still there to be
+        read by anything holding vault access. It also keeps
+        :meth:`disable` provably complete after a rotate.
         """
         ...
 
@@ -224,31 +234,56 @@ class InMemoryCredentialStore:
     Models the parts of Key Vault semantics that the design depends on —
     versions, the enabled flag, and disable-not-delete — so a test can prove
     ``register -> rotate -> disable -> re-register`` without Azure.
+
+    It takes the same ``naming`` strategy as
+    :class:`AzureKeyVaultCredentialStore` and resolves through ``read_order``
+    identically. An earlier cut hardcoded :func:`secret_name`, which made the
+    one seam the library exposes for adopters — compatibility naming — the one
+    behavior no test could reach: media-gen's legacy ``mediagen-byok-<oid>``
+    fallback could only have been exercised against a live vault.
     """
 
-    def __init__(self, catalogue: CredentialCatalogue | None = None) -> None:
+    def __init__(
+        self,
+        catalogue: CredentialCatalogue | None = None,
+        *,
+        naming: SecretNaming | None = None,
+    ) -> None:
         self._lock = threading.Lock()
         self._versions: dict[str, list[str]] = {}
         self._enabled: dict[str, bool] = {}
         self._tags: dict[str, dict[str, str]] = {}
+        self._naming = naming or DEFAULT_NAMING
         self._catalogue_version = catalogue.version if catalogue else CATALOGUE_VERSION
 
     @property
     def writable(self) -> bool:
         return True
 
+    def _present_locked(self, name: str) -> bool:
+        """Whether ``name`` exists at all — enabled or not."""
+        return bool(self._versions.get(name))
+
     def get_enabled(self, credential_id: CredentialId, subject: Subject) -> str | None:
-        name = secret_name(credential_id, subject)
         with self._lock:
-            if not self._enabled.get(name):
-                return None
-            versions = self._versions.get(name)
-            return versions[-1] if versions else None
+            for name in self._naming.read_order(credential_id, subject):
+                if not self._present_locked(name):
+                    continue
+                # The first name that EXISTS decides; a disabled one resolves
+                # to None rather than falling through, so a disconnect can
+                # never be defeated by a stale fallback name.
+                if not self._enabled.get(name):
+                    return None
+                return self._versions[name][-1]
+        return None
 
     def exists(self, credential_id: CredentialId, subject: Subject) -> bool:
-        name = secret_name(credential_id, subject)
         with self._lock:
-            return bool(self._enabled.get(name) and self._versions.get(name))
+            for name in self._naming.read_order(credential_id, subject):
+                if not self._present_locked(name):
+                    continue
+                return bool(self._enabled.get(name))
+        return False
 
     def put_version(
         self,
@@ -260,32 +295,48 @@ class InMemoryCredentialStore:
     ) -> None:
         if not value:
             raise ValueError("put_version requires a non-empty value")
-        name = secret_name(credential_id, subject)
+        primary = self._naming.primary(credential_id, subject)
+        with self._lock:
+            self._versions.setdefault(primary, []).append(value)
+            self._enabled[primary] = True
+            self._tags[primary] = _tags(credential_id, subject, outcome, self._catalogue_version)
+            for name in self._naming.read_order(credential_id, subject):
+                if name != primary and self._present_locked(name):
+                    self._enabled[name] = False
+
+    def disable(self, credential_id: CredentialId, subject: Subject) -> bool:
+        disabled_any = False
+        with self._lock:
+            for name in self._naming.read_order(credential_id, subject):
+                if self._present_locked(name) and self._enabled.get(name):
+                    self._enabled[name] = False
+                    disabled_any = True
+        return disabled_any
+
+    def metadata(self, credential_id: CredentialId, subject: Subject) -> dict[str, str] | None:
+        with self._lock:
+            for name in self._naming.read_order(credential_id, subject):
+                tags = self._tags.get(name)
+                if tags is None:
+                    continue
+                return dict(tags) | {"enabled": str(bool(self._enabled.get(name))).lower()}
+        return None
+
+    def version_count(self, credential_id: CredentialId, subject: Subject) -> int:
+        """Test affordance: how many versions the PRIMARY name has accumulated."""
+        with self._lock:
+            return len(self._versions.get(self._naming.primary(credential_id, subject), []))
+
+    def seed_legacy(self, name: str, value: str) -> None:
+        """Test affordance: plant a pre-existing secret under a raw ``name``.
+
+        Models the state C3 inherits — secrets written by the *previous*
+        implementation, under a name the current primary strategy would never
+        produce.
+        """
         with self._lock:
             self._versions.setdefault(name, []).append(value)
             self._enabled[name] = True
-            self._tags[name] = _tags(credential_id, subject, outcome, self._catalogue_version)
-
-    def disable(self, credential_id: CredentialId, subject: Subject) -> bool:
-        name = secret_name(credential_id, subject)
-        with self._lock:
-            if not self._versions.get(name) or not self._enabled.get(name):
-                return False
-            self._enabled[name] = False
-            return True
-
-    def metadata(self, credential_id: CredentialId, subject: Subject) -> dict[str, str] | None:
-        name = secret_name(credential_id, subject)
-        with self._lock:
-            tags = self._tags.get(name)
-            if tags is None:
-                return None
-            return dict(tags) | {"enabled": str(bool(self._enabled.get(name))).lower()}
-
-    def version_count(self, credential_id: CredentialId, subject: Subject) -> int:
-        """Test affordance: how many versions this secret has accumulated."""
-        with self._lock:
-            return len(self._versions.get(secret_name(credential_id, subject), []))
 
 
 class AzureKeyVaultCredentialStore:
@@ -311,7 +362,21 @@ class AzureKeyVaultCredentialStore:
         *,
         catalogue: CredentialCatalogue | None = None,
         naming: SecretNaming | None = None,
+        client: Any | None = None,
     ) -> None:
+        """:param client: injected ``SecretClient``-shaped object, for tests.
+
+        Without this seam the Azure branch is only reachable against a live
+        vault, so the lifecycle the design turns on — disable-not-delete,
+        rotate, re-register, and the read_order fall-through — would ship
+        unverified. Production always leaves it ``None``.
+        """
+        if client is not None:
+            self._client = client
+            self._naming = naming or DEFAULT_NAMING
+            self._catalogue_version = catalogue.version if catalogue else CATALOGUE_VERSION
+            return
+
         try:
             from azure.identity import DefaultAzureCredential
             from azure.keyvault.secrets import SecretClient
@@ -349,8 +414,13 @@ class AzureKeyVaultCredentialStore:
                 props = self._client.get_secret(name).properties
             except ResourceNotFoundError:
                 continue
-            if props.enabled is not False:
-                return True
+            # The first name that EXISTS decides, matching get_enabled. An
+            # earlier cut continued past a disabled name to the next one, so
+            # under a compatibility read_order a disconnected primary plus a
+            # stale enabled legacy name reported "registered" while
+            # get_enabled resolved None — a UI saying connected over a
+            # credential the resolver refuses to use.
+            return props.enabled is not False
         return False
 
     def put_version(
@@ -361,14 +431,25 @@ class AzureKeyVaultCredentialStore:
         *,
         outcome: ValidationOutcome | None = None,
     ) -> None:
+        from azure.core.exceptions import ResourceNotFoundError
+
         if not value:
             raise ValueError("put_version requires a non-empty value")
+        primary = self._naming.primary(credential_id, subject)
         self._client.set_secret(
-            self._naming.primary(credential_id, subject),
+            primary,
             value,
             tags=_tags(credential_id, subject, outcome, self._catalogue_version),
             enabled=True,
         )
+        # Supersede every other name this subject could resolve through, so a
+        # rotation does not leave the previous key enabled under a legacy name.
+        for name in self._naming.read_order(credential_id, subject):
+            if name == primary:
+                continue
+            with contextlib.suppress(ResourceNotFoundError):
+                if self._client.get_secret(name).properties.enabled is not False:
+                    self._client.update_secret_properties(name, enabled=False)
 
     def disable(self, credential_id: CredentialId, subject: Subject) -> bool:
         from azure.core.exceptions import ResourceNotFoundError

@@ -153,6 +153,97 @@ def test_legacy_naming_does_not_apply_across_subject_kinds(duke: Subject) -> Non
     assert naming.read_order(OPENAI, duke) == (secret_name(OPENAI, duke),)
 
 
+# ── Compatibility naming, exercised THROUGH a store ──────────────────────────
+#
+# The tests above only assert which *names* legacy_naming computes. These drive
+# the store, which is where the migration actually has to hold: the seam was
+# unreachable while InMemoryCredentialStore hardcoded secret_name().
+
+
+@pytest.fixture
+def compat_store() -> InMemoryCredentialStore:
+    """A store on media-gen's C3 compatibility strategy."""
+    return InMemoryCredentialStore(naming=legacy_naming("mediagen-byok-"))
+
+
+@pytest.mark.unit
+def test_already_registered_caller_still_resolves_through_the_legacy_name(
+    compat_store: InMemoryCredentialStore, alice: Subject
+) -> None:
+    """The whole point of C3: nobody's live key is orphaned by the adoption."""
+    compat_store.seed_legacy(f"mediagen-byok-{alice.value}", "pre-existing-key")
+
+    assert compat_store.get_enabled(OPENAI, alice) == "pre-existing-key"
+    assert compat_store.exists(OPENAI, alice) is True
+
+
+@pytest.mark.unit
+def test_rotation_writes_the_new_name_and_supersedes_the_legacy_one(
+    compat_store: InMemoryCredentialStore, alice: Subject
+) -> None:
+    """A rotation must not leave the previous key enabled under the old name."""
+    compat_store.seed_legacy(f"mediagen-byok-{alice.value}", "old-key")
+
+    compat_store.put_version(OPENAI, alice, "rotated-key")
+
+    assert compat_store.get_enabled(OPENAI, alice) == "rotated-key"
+    # The legacy location is superseded, not merely out-ranked: were it still
+    # enabled it would be an unreachable-but-live copy of the caller's old key.
+    assert compat_store._enabled[f"mediagen-byok-{alice.value}"] is False
+
+
+@pytest.mark.unit
+def test_disconnect_reaches_a_legacy_only_registration(
+    compat_store: InMemoryCredentialStore, alice: Subject
+) -> None:
+    """Disconnect must cover every name in read_order, not just the primary.
+
+    A caller who registered before C3 has nothing under the new name at all,
+    so a disable that only touched the primary would report success and leave
+    the key fully live.
+    """
+    compat_store.seed_legacy(f"mediagen-byok-{alice.value}", "pre-existing-key")
+
+    assert compat_store.disable(OPENAI, alice) is True
+    assert compat_store.get_enabled(OPENAI, alice) is None
+    assert compat_store.exists(OPENAI, alice) is False
+
+
+@pytest.mark.unit
+def test_a_disabled_primary_is_never_defeated_by_a_stale_legacy_name(
+    compat_store: InMemoryCredentialStore, alice: Subject
+) -> None:
+    """The first name that EXISTS decides — for both readers, identically.
+
+    Falling through a disabled primary to an enabled legacy name would let a
+    disconnect be silently undone by leftover state, and would make exists()
+    report "registered" over a credential get_enabled refuses to return.
+    """
+    compat_store.put_version(OPENAI, alice, "current-key")
+    compat_store.seed_legacy(f"mediagen-byok-{alice.value}", "stale-key")
+    compat_store._enabled[secret_name(OPENAI, alice)] = False
+
+    assert compat_store.get_enabled(OPENAI, alice) is None
+    assert compat_store.exists(OPENAI, alice) is False
+
+
+@pytest.mark.unit
+def test_re_registration_after_disconnect_works_without_a_purge(
+    compat_store: InMemoryCredentialStore, alice: Subject
+) -> None:
+    """§6 of the plan: disconnect disables, so re-registration is a new version.
+
+    The implementation this replaces called begin_delete_secret(), which on a
+    soft-delete vault leaves the name unrecreatable until recovery or purge.
+    """
+    compat_store.seed_legacy(f"mediagen-byok-{alice.value}", "first-key")
+    compat_store.disable(OPENAI, alice)
+
+    compat_store.put_version(OPENAI, alice, "second-key")
+
+    assert compat_store.get_enabled(OPENAI, alice) == "second-key"
+
+
 @pytest.mark.unit
 def test_put_version_rejects_empty_value(store: InMemoryCredentialStore, alice: Subject) -> None:
     with pytest.raises(ValueError, match="non-empty"):
