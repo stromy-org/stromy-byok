@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "stromy-byok"
-version = "0.2.0"
+version = "0.2.1"
 description = "Client-neutral BYOK credential plane: split reader/writer stores, bound single-use registration grants, hardened registration routes and provider validators."
 readme = "README.md"
 requires-python = ">=3.11"
