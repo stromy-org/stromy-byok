@@ -147,10 +147,10 @@ def test_legacy_naming_reads_old_name_and_writes_new(alice: Subject) -> None:
 
 
 @pytest.mark.unit
-def test_legacy_naming_does_not_apply_across_subject_kinds(duke: Subject) -> None:
+def test_legacy_naming_does_not_apply_across_subject_kinds(tenant: Subject) -> None:
     """A client-slug subject must never read an oid-shaped legacy secret."""
     naming = legacy_naming("mediagen-byok-", kind=SubjectKind.ENTRA_OID)
-    assert naming.read_order(OPENAI, duke) == (secret_name(OPENAI, duke),)
+    assert naming.read_order(OPENAI, tenant) == (secret_name(OPENAI, tenant),)
 
 
 # ── Compatibility naming, exercised THROUGH a store ──────────────────────────

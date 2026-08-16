@@ -118,5 +118,8 @@ def bob() -> Subject:
 
 
 @pytest.fixture
-def duke() -> Subject:
-    return Subject(SubjectKind.CLIENT_SLUG, "dukestrategies")
+def tenant() -> Subject:
+    # A stand-in slug, deliberately not a real client's. This package's whole
+    # claim is that it hardcodes no client; a fixture naming one would make the
+    # test suite the counterexample to its own README.
+    return Subject(SubjectKind.CLIENT_SLUG, "acme-co")
