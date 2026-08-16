@@ -81,9 +81,11 @@ def fake() -> FakeSecretClient:
 
 @pytest.fixture
 def azure_store(fake: FakeSecretClient) -> AzureKeyVaultCredentialStore:
-    """The store as media-gen configures it in C3."""
+    """The store as an adopting application configures it (media-gen, in C3)."""
     return AzureKeyVaultCredentialStore(
-        "https://kv-mediagen-byok.vault.azure.net/",
+        # A stand-in vault, not a live one. The URL is inert here — the client is
+        # injected below — and naming a real vault in a public test buys nothing.
+        "https://kv-example-byok.vault.azure.net/",
         naming=legacy_naming("mediagen-byok-"),
         client=fake,
     )
