@@ -41,11 +41,17 @@ jobs:
         with:
           version: "latest"
       - run: uv python install 3.11
-      # The `dev` dependency-group installs by default and pulls in the [azure]
-      # extra, so pyright type-checks the Key Vault backend rather than skipping
-      # it as an unresolved import — that backend is the one this package cannot
-      # afford to leave unchecked.
-      - run: uv sync
+      # `--all-extras` installs [azure], so pyright type-checks the Key Vault
+      # backend instead of skipping it as an unresolved import — that backend is
+      # the one this package cannot afford to leave unchecked. Unlike
+      # asset-transport, this repo's `dev` group does NOT pull the extra in, so
+      # the flag is what makes the difference.
+      #
+      # `--locked` is load-bearing, not tidiness: a bare `uv sync` SILENTLY
+      # RELOCKS when pyproject.toml and uv.lock disagree, so CI goes green
+      # against a lockfile it regenerated and threw away, and the committed one
+      # is never asserted. Both flags mirror the shared ci-python.yml.
+      - run: uv sync --locked --all-extras
       - name: Lint
         run: uv run ruff check
       - name: Type check
@@ -59,6 +65,6 @@ jobs:
         with:
           version: "latest"
       - run: uv python install 3.11
-      - run: uv sync
+      - run: uv sync --locked --all-extras
       - name: Tests
         run: uv run pytest
