@@ -43,10 +43,22 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --title "$GITHUB_REF_NAME" \
-            --generate-notes \
-            dist/*
+          # Rerun-safe. `gh release create` fails outright when the tag
+          # already has a release, so a re-run after a transient failure in a
+          # LATER step (the consumer-bump token mint, a network blip) could not
+          # get past this one — the operator's only route was to delete the
+          # release by hand first. Nothing about that protects anything: the tag
+          # is already asserted to match pyproject above, so re-uploading the
+          # same artifacts is idempotent.
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME exists — refreshing its assets."
+            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              dist/*
+          fi
 
       - name: Mint GitHub App token
         # stromy-ci App token with Contents: write on the consumer repo — lets
