@@ -17,6 +17,12 @@ client mode safe, and the order of its three steps is the whole design:
    precise failure this plane exists to prevent. Scrubbing first means a
    missing declaration or key produces an *authentication failure*, never a
    surprise invoice.
+
+   ``scrub_except`` narrows that surface for **mixed funding**, where one run
+   spends the caller's key for some credentials and the operator's for others.
+   The exemption is a list of ids the caller passes from a recorded funding
+   decision — it is never derived here, because a hole computed from "we could
+   not resolve this one" is exactly the fallback the totality exists to close.
 2. **Inject only what was resolved.** Nothing else enters the environment.
 3. **Restore in ``finally``.** Injection is an execution *scope*, not a
    permanent mutation. Job-per-run is still the production isolation boundary,
@@ -98,6 +104,7 @@ def credential_scope(
     resolved: Sequence[ResolvedCredential],
     *,
     scrub: bool = True,
+    scrub_except: Iterable[str] = (),
     env: dict[str, str] | None = None,
 ) -> Generator[None]:
     """Enter an execution scope carrying exactly ``resolved`` credentials.
@@ -105,6 +112,21 @@ def credential_scope(
     :param scrub: ``True`` for client mode — remove **every** caller-funded
         alias in the catalogue before injecting. ``False`` for operator mode,
         which keeps the ambient operator keys.
+    :param scrub_except: credential ids whose aliases are LEFT IN PLACE under
+        ``scrub``, because the caller holds a recorded decision that the
+        operator funds them. Mixed funding — the client pays for the model
+        tokens their own work consumes while the platform absorbs a flat-rate
+        subscription — is the case this exists for.
+
+        **The exemption must come from a decision, never from a failure.** The
+        totality of the scrub is what makes "a missing registration produces an
+        authentication error, not a surprise invoice" true; every hole punched
+        in it is a place where an unresolved credential could fall back to
+        operator spend instead. So this function will not infer one: it accepts
+        only ids the caller names, and refuses the two shapes that would let an
+        accident look like a decision — an id that is also being injected
+        (funded twice) and an id the catalogue does not know (whose aliases
+        cannot be identified, so "exempt" would silently scrub them anyway).
     :param env: injectable environment mapping, for tests.
 
     On exit — including on an exception — the environment is restored to
@@ -113,12 +135,37 @@ def credential_scope(
     target = os.environ if env is None else env
     prior: dict[str, str | None] = {}
 
+    exempt_ids = tuple(dict.fromkeys(str(cid) for cid in scrub_except))
+    injected_ids = {str(credential.credential_id) for credential in resolved}
+    both = sorted(injected_ids.intersection(exempt_ids))
+    if both:
+        raise ValueError(
+            f"credential(s) {', '.join(both)} are both injected and exempted from "
+            "the scrub. One credential has exactly one funder; a caller asking for "
+            "both is carrying two funding decisions for it."
+        )
+    # `get` raises UnknownCredentialError, which is the right answer: an id whose
+    # spec we cannot read has aliases we cannot name, so it would be scrubbed
+    # despite the exemption — a silent no-op on a safety-relevant request.
+    exempt_aliases = {
+        alias for cid in exempt_ids for alias in catalogue.get(cid).env_aliases
+    }
+
     try:
         if scrub:
             # Scrub the full caller-funded surface, not just the aliases we are
             # about to fill. An alias we hold no resolution for is precisely
             # the one that would otherwise fall through to operator spend.
-            prior.update(scrub_aliases(catalogue.caller_funded_env_aliases(), env))
+            prior.update(
+                scrub_aliases(
+                    tuple(
+                        alias
+                        for alias in catalogue.caller_funded_env_aliases()
+                        if alias not in exempt_aliases
+                    ),
+                    env,
+                )
+            )
 
         for credential in resolved:
             if credential.value is None:
