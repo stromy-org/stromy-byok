@@ -13,6 +13,7 @@ from stromy_byok import (
     CredentialCatalogue,
     CredentialSource,
     ResolvedCredential,
+    UnknownCredentialError,
     credential_scope,
     safe_sources,
     scrub_aliases,
@@ -56,6 +57,91 @@ def test_the_second_apify_alias_is_not_forgotten(catalogue: CredentialCatalogue)
     assert "APIFY_API_TOKEN" in aliases
     assert "APIFY_TOKEN" in aliases
     assert "INTERNAL_METRICS_KEY" not in aliases
+
+
+@pytest.mark.unit
+def test_scrub_except_keeps_an_operator_funded_alias(catalogue: CredentialCatalogue) -> None:
+    """Mixed funding: the client pays for the model, the operator for Apify."""
+    env = {
+        "OPENAI_API_KEY": "sk-STROMY-OPERATOR",
+        "APIFY_API_TOKEN": "apify-STROMY",
+        "APIFY_TOKEN": "apify-STROMY-ALT",
+        "DEEPSEEK_API_KEY": "ds-STROMY-OPERATOR",
+    }
+    resolved = [ResolvedCredential(OPENAI, CredentialSource.CALLER_BYOK, "sk-CLIENT")]
+
+    with credential_scope(catalogue, resolved, scrub=True, scrub_except=[APIFY], env=env):
+        assert env["OPENAI_API_KEY"] == "sk-CLIENT"
+        # EVERY alias of the exempted credential survives, not just the first.
+        assert env["APIFY_API_TOKEN"] == "apify-STROMY"
+        assert env["APIFY_TOKEN"] == "apify-STROMY-ALT"
+
+
+@pytest.mark.unit
+def test_scrub_except_does_not_leak_others(catalogue: CredentialCatalogue) -> None:
+    """NEGATIVE CONTROL for the exemption.
+
+    The value of ``scrub_except`` is entirely in what it does *not* cover. A
+    bug that widened one exemption into a blanket one would leave every
+    operator key live in a client-funded run — and would pass the positive test
+    above unchanged.
+    """
+    env = {
+        "OPENAI_API_KEY": "sk-STROMY-OPERATOR",
+        "APIFY_API_TOKEN": "apify-STROMY",
+        "DEEPSEEK_API_KEY": "ds-STROMY-OPERATOR",
+        "HUNTER_API_KEY": "hunter-STROMY",
+    }
+    resolved = [ResolvedCredential(OPENAI, CredentialSource.CALLER_BYOK, "sk-CLIENT")]
+
+    with credential_scope(catalogue, resolved, scrub=True, scrub_except=[APIFY], env=env):
+        assert env["APIFY_API_TOKEN"] == "apify-STROMY"
+        assert "DEEPSEEK_API_KEY" not in env
+        assert "HUNTER_API_KEY" not in env
+
+
+@pytest.mark.unit
+def test_an_exempted_alias_is_restored_untouched(catalogue: CredentialCatalogue) -> None:
+    """An exempted alias was never scrubbed, so it must survive the restore."""
+    env = {"APIFY_API_TOKEN": "apify-STROMY", "OPENAI_API_KEY": "sk-STROMY"}
+    resolved = [ResolvedCredential(OPENAI, CredentialSource.CALLER_BYOK, "sk-CLIENT")]
+
+    with credential_scope(catalogue, resolved, scrub=True, scrub_except=[APIFY], env=env):
+        pass
+    assert env == {"APIFY_API_TOKEN": "apify-STROMY", "OPENAI_API_KEY": "sk-STROMY"}
+
+
+@pytest.mark.unit
+def test_a_credential_cannot_be_both_injected_and_exempted(
+    catalogue: CredentialCatalogue,
+) -> None:
+    """Two funding decisions for one credential is a caller bug, not a merge."""
+    env = {"OPENAI_API_KEY": "sk-STROMY"}
+    resolved = [ResolvedCredential(OPENAI, CredentialSource.CALLER_BYOK, "sk-CLIENT")]
+
+    with pytest.raises(ValueError, match="openai-api"):
+        with credential_scope(catalogue, resolved, scrub=True, scrub_except=[OPENAI], env=env):
+            pass  # pragma: no cover - the scope must not open
+
+
+@pytest.mark.unit
+def test_exempting_an_unknown_credential_is_refused(catalogue: CredentialCatalogue) -> None:
+    """Silently ignoring it would scrub aliases the caller asked us to keep."""
+    env = {"OPENAI_API_KEY": "sk-STROMY"}
+
+    with pytest.raises(UnknownCredentialError):
+        with credential_scope(catalogue, [], scrub=True, scrub_except=["nope-api"], env=env):
+            pass  # pragma: no cover - the scope must not open
+
+
+@pytest.mark.unit
+def test_scrub_except_is_inert_without_scrub(catalogue: CredentialCatalogue) -> None:
+    """Operator mode already keeps everything; the exemption changes nothing."""
+    env = {"OPENAI_API_KEY": "sk-STROMY", "APIFY_API_TOKEN": "apify-STROMY"}
+
+    with credential_scope(catalogue, [], scrub=False, scrub_except=[APIFY], env=env):
+        assert env["OPENAI_API_KEY"] == "sk-STROMY"
+        assert env["APIFY_API_TOKEN"] == "apify-STROMY"
 
 
 @pytest.mark.unit
