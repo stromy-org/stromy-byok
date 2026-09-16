@@ -48,15 +48,8 @@ on:
         default: false
 
 permissions:
+  # Creating the tag and the Release is the only write this workflow makes.
   contents: write
-  # Both are for the shared CI's ci-dedup lookups. The org default grant is
-  # contents+packages only, so omitting these makes that action 403 and silently
-  # never skip. It will not skip here anyway (it requires `event == push`, and
-  # this is a workflow_dispatch) — which is deliberate: a release re-runs the
-  # checks for real rather than inheriting a pass from a PR that may have been
-  # green against a dependency set that has since moved.
-  pull-requests: read
-  actions: read
 
 concurrency:
   # Two simultaneous releases would race to create the same tag.
@@ -129,10 +122,37 @@ jobs:
 
   quality:
     needs: preflight
-    uses: stromy-org/stromy-org/.github/workflows/ci-python.yml@main
-    with:
-      source_package: "src/stromy_byok"
-    secrets: inherit
+    runs-on: ubuntu-latest
+    # INLINED, not a call to the shared `ci-python.yml` — and this is the same
+    # reason `ci.yml` in this repo is inlined. THIS REPO IS PUBLIC and the
+    # control plane hosting the shared workflow is PRIVATE, so the call does not
+    # resolve: the run fails at 0s with a startup error and NO jobs, which reads
+    # as "the release failed" with nothing in the logs to read. `asset-transport`
+    # hit exactly this on its first tag after its visibility flipped, because
+    # ci.yml had been fixed and release.yml had not — and nothing caught it,
+    # since a release workflow only runs when someone releases.
+    #
+    # Keep these steps in step with ci.yml by hand. `tests/unit/test_release_guard.py`
+    # asserts the ordering invariants; it cannot assert that two files agree.
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+      - run: uv python install 3.11
+      # `--all-extras` so pyright type-checks the Key Vault backend rather than
+      # skipping it as an unresolved import. `--locked` is load-bearing: a bare
+      # `uv sync` SILENTLY RELOCKS when pyproject.toml and uv.lock disagree, so
+      # CI would go green against a lockfile it regenerated and threw away.
+      - run: uv sync --locked --all-extras
+      - name: Lint
+        run: uv run ruff check
+      - name: Type check
+        run: uv run pyright src/stromy_byok
+      - name: Tests
+        run: uv run pytest
 
   publish:
     needs: [preflight, quality]
