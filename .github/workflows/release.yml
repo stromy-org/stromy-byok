@@ -1,106 +1,229 @@
-# Build a sdist+wheel on tag push and attach them to a GitHub Release.
+# Cut a release. THE TAG IS AN OUTPUT OF THIS WORKFLOW, NEVER AN INPUT TO IT.
 #
-# Workflow:
-#   1. Bump version in pyproject.toml on main.
-#   2. git tag vX.Y.Z && git push --tags
-#   3. This workflow builds + publishes the release.
+# HOW TO RELEASE
+#   1. Bump `[project].version` on `main` the normal way — a PR, reviewed, CI-gated.
+#   2. Actions -> Release -> "Run workflow" (or `gh workflow run release.yml`).
+#      Nobody types a tag, ever. This workflow derives it from `pyproject.toml`.
 #
-# Consumers depend on a specific tag via:
-#   "<pkg> @ git+https://github.com/stromy-org/stromy-byok.git@vX.Y.Z"
-# so the GitHub Release artifacts are informational — uv reads the source tree
-# at the tagged commit directly. The release page is the human-facing audit
-# trail and changelog anchor.
+# WHY IT IS SHAPED THIS WAY (2026-09-16)
+# --------------------------------------
+# The previous workflow triggered `on: push: tags` and then checked three things:
+# that the tag was reachable from main, that the tree was green, and that the tag
+# matched `[project].version`. Every one of those ran AFTER `git push --tags` had
+# already created an immutable, publicly pinnable tag — so all three could report
+# and none could prevent. They were witnesses wearing a gate's clothing.
+#
+# Measured across the org's nine internal Python libraries on 2026-09-16: three
+# published tags disagreed with the `pyproject.toml` at their own commit —
+# `stromy-byok v0.3.1` (pinned live by Stromy), `workflow-runtime-core v0.10.1`
+# and `fetch-kit v0.3.0` — and each of the three ALSO has no GitHub Release,
+# because the mismatch step failed and skipped the step that creates one. The
+# check worked perfectly and changed nothing: the tag it rejected was already
+# there, already immutable, already consumable.
+#
+# The root cause is not the check. It is that the procedure asked a human to
+# state the version TWICE — once in `pyproject.toml`, once in a tag typed by hand
+# two steps later — and made the second statement irreversible and instantly
+# public. Two hand-maintained facts that must agree will eventually disagree.
+#
+# So the version is now stated ONCE, in `pyproject.toml`, and the tag is computed
+# from it. A mismatch is not detected here; it is unrepresentable. Everything
+# else — the default-branch check, the ancestry check, lint, types, tests, the
+# build, and the assertion that the built artifacts carry that version — runs
+# before the first irreversible act, which is the very last step.
+#
+# The partner to this file is a repository ruleset that restricts `refs/tags/v*`
+# creation to this workflow, so a hand-pushed tag is refused by the server rather
+# than discouraged by a comment. Without that ruleset this file is a convention;
+# with it, it is the only way in.
 
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Run every gate and report the version, then stop without tagging"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
+  # Both are for the shared CI's ci-dedup lookups. The org default grant is
+  # contents+packages only, so omitting these makes that action 403 and silently
+  # never skip. It will not skip here anyway (it requires `event == push`, and
+  # this is a workflow_dispatch) — which is deliberate: a release re-runs the
+  # checks for real rather than inheriting a pass from a PR that may have been
+  # green against a dependency set that has since moved.
+  pull-requests: read
+  actions: read
+
+concurrency:
+  # Two simultaneous releases would race to create the same tag.
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  # Refuse to publish a tag that is not reachable from main (ORG-PLAN-209).
-  #
-  # `verify tag matches pyproject version` proves the tag is *self-consistent*, not
-  # that its commit was ever reviewed or CI-gated: `git tag v9.9.9` on a side branch
-  # with a matching pyproject bump passes it and publishes. Consumers pin exact tags
-  # via [tool.uv.sources], so a tag is the immutable artifact — it cannot be walked
-  # back once a consumer has resolved it.
-  #
-  # This is its own JOB, not a step, so every downstream job (build, GitHub Release,
-  # consumer-bump dispatch) is gated by `needs:` and no release side effect can run
-  # ahead of it. `fetch-depth: 0` is load-bearing — ancestry is unprovable on the
-  # default shallow checkout, and a shallow `merge-base` would fail open-ish/noisily
-  # rather than answer the question.
-  guard:
+  preflight:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      tag: ${{ steps.read.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Refuse a tag that is not reachable from main
+      - name: Refuse a release dispatched from anywhere but the default branch
+        # `workflow_dispatch` can be fired against ANY ref, including an
+        # unreviewed branch. This is the old `guard` job's intent, moved to
+        # where it can still refuse something.
+        env:
+          REF: ${{ github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          git fetch origin main --quiet
-          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
-            echo "::error::Tag ${GITHUB_REF_NAME} (${GITHUB_SHA}) is not an ancestor of origin/main."
-            echo "::error::Merge the work to main before tagging — a release must ship reviewed, CI-gated code."
+          if [ "$REF" != "$DEFAULT_BRANCH" ]; then
+            echo "::error::Release dispatched against '$REF'. A release ships reviewed, CI-gated code from '$DEFAULT_BRANCH'."
             exit 1
           fi
 
-  build-and-release:
-    needs: [guard]
+      - uses: actions/checkout@v5
+        with:
+          # The ancestry test below needs real history; a shallow clone makes
+          # `merge-base --is-ancestor` answer about a graph it cannot see.
+          fetch-depth: 0
+
+      - name: Refuse a commit that is not reachable from the default branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git fetch origin "$DEFAULT_BRANCH" --quiet
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"; then
+            echo "::error::${GITHUB_SHA} is not an ancestor of origin/${DEFAULT_BRANCH} — refusing to release unreviewed code."
+            exit 1
+          fi
+
+      - name: Read the version being released
+        id: read
+        # stdlib tomllib on the runner's python3 — deliberately NOT `uv run`,
+        # which would resolve the full dependency set (private git+URL internal
+        # libs included) just to read one string.
+        run: |
+          VERSION="$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])')"
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not read [project].version from pyproject.toml"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}"    >> "$GITHUB_OUTPUT"
+          echo "Releasing v${VERSION} from ${GITHUB_SHA}"
+
+      - name: Refuse a version that is already released
+        # The replacement for "did the human type the right tag?". They cannot
+        # type one now, so the only remaining mistake is dispatching without
+        # having bumped the version — which this catches BEFORE anything ships.
+        env:
+          TAG: ${{ steps.read.outputs.tag }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "::error::${TAG} already exists. Bump [project].version on the default branch, then dispatch again."
+            exit 1
+          fi
+          echo "${TAG} is free."
+
+  quality:
+    needs: preflight
+    uses: stromy-org/stromy-org/.github/workflows/ci-python.yml@main
+    with:
+      source_package: "src/stromy_byok"
+    secrets: inherit
+
+  publish:
+    needs: [preflight, quality]
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.preflight.outputs.version }}
+      TAG: ${{ needs.preflight.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          # Pin the exact commit preflight validated and quality tested. The
+          # default branch may have moved while those ran; the tag must land on
+          # the tree that was actually checked, not on whatever main is now.
+          ref: ${{ github.sha }}
+
       - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
+
+      - name: Refuse a lockfile that disagrees with pyproject
+        # The version lives in a THIRD place: `uv.lock` records this package's own
+        # version alongside the resolved dependency set. `stromy-byok v0.3.1` had
+        # pyproject at 0.3.0 and the lock at 0.3.0 while the tag said 0.3.1 — and a
+        # stale lock is the more consequential half, because it pins what every
+        # consumer's `uv sync` resolves. `uv lock --check` asks uv's own question
+        # ("is this lock current for this pyproject?") rather than re-implementing
+        # a version comparison that would miss dependency drift entirely.
+        run: uv lock --check
+
       - name: Build distributions
         run: uv build
-      - name: Verify tag matches pyproject version
+
+      - name: Verify the built artifacts carry the version being released
+        # Belt and braces: the tag is derived from the same field this asserts
+        # on, so a disagreement here means the build backend produced a version
+        # other than `[project].version` (a dynamic-version misconfiguration).
+        # Unlike its predecessor, this runs while refusing is still possible.
         run: |
-          PYPROJECT_VERSION="$(uv run python -c 'import tomllib,sys; print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])')"
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          if [ "$PYPROJECT_VERSION" != "$TAG_VERSION" ]; then
-            echo "::error::Tag ${GITHUB_REF_NAME} does not match pyproject version ${PYPROJECT_VERSION}"
+          shopt -s nullglob
+          sdist=(dist/*-"${VERSION}".tar.gz)
+          wheel=(dist/*-"${VERSION}"-*.whl)
+          if [ ${#sdist[@]} -eq 0 ] || [ ${#wheel[@]} -eq 0 ]; then
+            echo "::error::uv build produced no sdist+wheel pair carrying ${VERSION}. dist/ holds: $(ls dist/ | tr '\n' ' ')"
             exit 1
           fi
-      - name: Create GitHub Release
+          echo "Built: ${sdist[*]} ${wheel[*]}"
+
+      - name: Stop here (dry run)
+        if: inputs.dry_run
+        run: |
+          echo "::notice::Dry run — every gate passed for ${TAG}. Nothing was tagged or published."
+
+      # ----- Everything above this line is reversible. Nothing below it is. -----
+
+      - name: Create the tag
+        if: '!inputs.dry_run'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG" "$GITHUB_SHA"
+          git push origin "$TAG"
+
+      - name: Create the GitHub Release
+        if: '!inputs.dry_run'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Rerun-safe. `gh release create` fails outright when the tag
-          # already has a release, so a re-run after a transient failure in a
-          # LATER step (the consumer-bump token mint, a network blip) could not
-          # get past this one — the operator's only route was to delete the
-          # release by hand first. Nothing about that protects anything: the tag
-          # is already asserted to match pyproject above, so re-uploading the
-          # same artifacts is idempotent.
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            echo "Release $GITHUB_REF_NAME exists — refreshing its assets."
-            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          # Rerun-safe. `gh release create` fails outright when the tag already
+          # has a release, which is how `linkedin-publish v0.1.0` reads as a red
+          # release run over a release that shipped perfectly well.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG exists — refreshing its assets."
+            gh release upload "$TAG" dist/* --clobber
           else
-            gh release create "$GITHUB_REF_NAME" \
-              --title "$GITHUB_REF_NAME" \
+            gh release create "$TAG" \
+              --title "$TAG" \
               --generate-notes \
               dist/*
           fi
 
       # NO auto-bump dispatch here, deliberately (ORG-296, 2026-09-13).
       #
-      # This step used to fire `repository_dispatch` at a hand-written list of
-      # consumer repos. `POST /dispatches` returns 204 whether or not anything
-      # listens, so the list could rot in silence — and it had: the receiver
-      # existed in one repo, five named targets had none, and eight real
-      # consumers were named by no sender at all.
+      # This file used to mint a `stromy-ci` App token and fire
+      # `repository_dispatch` at a hand-written consumer list. `POST
+      # /dispatches` returns 204 whether or not anything listens, so the list
+      # rotted invisibly — measured across the org, the receiver existed in ONE
+      # repo. The block could not help and could still fail: `asset-transport
+      # v0.7.0` published a perfectly good release and then went red on the
+      # token mint for this very step.
       #
-      # Pins are now reconciled centrally by stromy-org's
-      # .github/workflows/internal-lib-pins.yml, which DERIVES the consumer
-      # graph from every repo's own [tool.uv.sources] each run and opens the
-      # bump PRs. Nothing here needs to know who consumes this library.
-      #
-      # Re-adding a fan-out is gated: `internal-lib-pins.py --check` fails on a
-      # dispatch aimed at a repo with no receiver.
+      # Pins are reconciled centrally by stromy-org's internal-lib-pins.yml,
+      # which DERIVES the consumer graph from every repo's own
+      # [tool.uv.sources] on each run. A library must not need to know who
+      # consumes it.
