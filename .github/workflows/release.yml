@@ -1,41 +1,45 @@
 # Cut a release. THE TAG IS AN OUTPUT OF THIS WORKFLOW, NEVER AN INPUT TO IT.
 #
 # HOW TO RELEASE
-#   1. Bump `[project].version` on `main` the normal way — a PR, reviewed, CI-gated.
-#   2. Actions -> Release -> "Run workflow" (or `gh workflow run release.yml`).
+#   1. Bump `[project].version` on the default branch the normal way — a PR,
+#      reviewed, CI-gated. Relock (`uv lock`) in the same commit.
+#   2. Actions -> Release -> "Run workflow", or `gh workflow run release.yml`.
 #      Nobody types a tag, ever. This workflow derives it from `pyproject.toml`.
+#
+# Consumers depend on a specific tag via:
+#   "<pkg> @ git+https://github.com/stromy-org/stromy-byok.git@vX.Y.Z"
+# so a tag IS the shipped artifact: once a consumer has resolved one it cannot be
+# walked back.
 #
 # WHY IT IS SHAPED THIS WAY (2026-09-16)
 # --------------------------------------
-# The previous workflow triggered `on: push: tags` and then checked three things:
-# that the tag was reachable from main, that the tree was green, and that the tag
-# matched `[project].version`. Every one of those ran AFTER `git push --tags` had
-# already created an immutable, publicly pinnable tag — so all three could report
-# and none could prevent. They were witnesses wearing a gate's clothing.
+# This workflow used to trigger `on: push: tags` and then check three things: that
+# the tag was reachable from the default branch, that the tree was green, and that
+# the tag matched `[project].version`. All three ran AFTER `git push --tags` had
+# created an immutable, publicly pinnable tag — so all three could report and none
+# could prevent. They were witnesses wearing a gate's clothing.
 #
 # Measured across the org's nine internal Python libraries on 2026-09-16: three
 # published tags disagreed with the `pyproject.toml` at their own commit —
 # `stromy-byok v0.3.1` (pinned live by Stromy), `workflow-runtime-core v0.10.1`
-# and `fetch-kit v0.3.0` — and each of the three ALSO has no GitHub Release,
-# because the mismatch step failed and skipped the step that creates one. The
-# check worked perfectly and changed nothing: the tag it rejected was already
-# there, already immutable, already consumable.
+# and `fetch-kit v0.3.0` — and each ALSO had no GitHub Release, because the
+# mismatch step failed and skipped the step that creates one. The check worked
+# perfectly every time and prevented nothing.
 #
-# The root cause is not the check. It is that the procedure asked a human to
-# state the version TWICE — once in `pyproject.toml`, once in a tag typed by hand
-# two steps later — and made the second statement irreversible and instantly
-# public. Two hand-maintained facts that must agree will eventually disagree.
+# The cause is not the check. The procedure asked a human to state the version
+# TWICE — once in `pyproject.toml`, once in a tag typed by hand two steps later —
+# and made the second statement irreversible and instantly public. Two
+# hand-maintained facts that must agree will eventually disagree. (There is a
+# third copy: `uv.lock` records this package's own version too, which is why
+# `uv lock --check` is a gate below.)
 #
-# So the version is now stated ONCE, in `pyproject.toml`, and the tag is computed
-# from it. A mismatch is not detected here; it is unrepresentable. Everything
-# else — the default-branch check, the ancestry check, lint, types, tests, the
-# build, and the assertion that the built artifacts carry that version — runs
-# before the first irreversible act, which is the very last step.
+# So the version is stated ONCE and the tag is computed from it. A mismatch is not
+# detected here; it is unrepresentable. Everything else runs before the first
+# irreversible act, which is the very last step.
 #
-# The partner to this file is a repository ruleset that restricts `refs/tags/v*`
-# creation to this workflow, so a hand-pushed tag is refused by the server rather
-# than discouraged by a comment. Without that ruleset this file is a convention;
-# with it, it is the only way in.
+# The remaining mistake a human can still make — dispatching without having
+# bumped the version — is caught by "refuse a version that is already released",
+# before anything is built or published.
 
 name: Release
 
@@ -76,9 +80,9 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
-          # The ancestry test below needs real history; a shallow clone makes
+          # The ancestry test needs real history; a shallow clone makes
           # `merge-base --is-ancestor` answer about a graph it cannot see.
           fetch-depth: 0
 
@@ -123,30 +127,38 @@ jobs:
   quality:
     needs: preflight
     runs-on: ubuntu-latest
-    # INLINED, not a call to the shared `ci-python.yml` — and this is the same
-    # reason `ci.yml` in this repo is inlined. THIS REPO IS PUBLIC and the
-    # control plane hosting the shared workflow is PRIVATE, so the call does not
-    # resolve: the run fails at 0s with a startup error and NO jobs, which reads
-    # as "the release failed" with nothing in the logs to read. `asset-transport`
-    # hit exactly this on its first tag after its visibility flipped, because
-    # ci.yml had been fixed and release.yml had not — and nothing caught it,
-    # since a release workflow only runs when someone releases.
+    # INLINED rather than calling the shared `ci-python.yml`, unlike `ci.yml`.
+    # Two reasons, both load-bearing for a RELEASE specifically:
     #
-    # Keep these steps in step with ci.yml by hand. `tests/unit/test_release_guard.py`
-    # asserts the ordering invariants; it cannot assert that two files agree.
+    #  1. A PUBLIC satellite cannot call the control plane's PRIVATE reusable
+    #     workflow. The call does not resolve and the run dies at 0s with a
+    #     startup error and NO jobs — which reads as "the release failed" with
+    #     nothing in the logs to read. `asset-transport` shipped exactly that on
+    #     its first tag after its visibility flipped, because `ci.yml` had been
+    #     fixed and `release.yml` had not, and nothing caught it: a release
+    #     workflow only runs when someone releases.
+    #  2. `ci-dedup` inside the shared workflow skips checks when a merged PR
+    #     already tested the identical tree. That is right for a push to the
+    #     default branch and wrong for a release, which should re-resolve
+    #     dependencies rather than inherit a pass earned against a dependency set
+    #     that has since moved. (It would not fire here anyway — it requires
+    #     `event == push` — but relying on that is relying on a detail.)
+    #
+    # Keep these steps in step with `ci.yml` by hand.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-      - uses: astral-sh/setup-uv@v5
+
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "latest"
       - run: uv python install 3.11
-      # `--all-extras` so pyright type-checks the Key Vault backend rather than
-      # skipping it as an unresolved import. `--locked` is load-bearing: a bare
-      # `uv sync` SILENTLY RELOCKS when pyproject.toml and uv.lock disagree, so
-      # CI would go green against a lockfile it regenerated and threw away.
+      # `--locked` is load-bearing, not tidiness: a bare `uv sync` SILENTLY
+      # RELOCKS when pyproject.toml and uv.lock disagree, so CI would go green
+      # against a lockfile it regenerated and threw away.
       - run: uv sync --locked --all-extras
+
       - name: Lint
         run: uv run ruff check
       - name: Type check
@@ -161,35 +173,40 @@ jobs:
       VERSION: ${{ needs.preflight.outputs.version }}
       TAG: ${{ needs.preflight.outputs.tag }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           # Pin the exact commit preflight validated and quality tested. The
           # default branch may have moved while those ran; the tag must land on
           # the tree that was actually checked, not on whatever main is now.
           ref: ${{ github.sha }}
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "latest"
 
       - name: Refuse a lockfile that disagrees with pyproject
         # The version lives in a THIRD place: `uv.lock` records this package's own
-        # version alongside the resolved dependency set. `stromy-byok v0.3.1` had
-        # pyproject at 0.3.0 and the lock at 0.3.0 while the tag said 0.3.1 — and a
-        # stale lock is the more consequential half, because it pins what every
-        # consumer's `uv sync` resolves. `uv lock --check` asks uv's own question
-        # ("is this lock current for this pyproject?") rather than re-implementing
-        # a version comparison that would miss dependency drift entirely.
+        # version alongside the resolved dependency set, and a stale lock is the
+        # more consequential half because it pins what a `uv sync` resolves.
+        # `uv lock --check` asks uv's own question rather than re-implementing a
+        # version comparison that would miss dependency drift entirely.
         run: uv lock --check
 
       - name: Build distributions
         run: uv build
 
       - name: Verify the built artifacts carry the version being released
-        # Belt and braces: the tag is derived from the same field this asserts
-        # on, so a disagreement here means the build backend produced a version
-        # other than `[project].version` (a dynamic-version misconfiguration).
-        # Unlike its predecessor, this runs while refusing is still possible.
+        # Belt and braces: the tag is derived from the same field this asserts on,
+        # so a disagreement here means the build backend produced a version other
+        # than `[project].version` (a dynamic-version misconfiguration). Unlike
+        # its predecessor, this runs while refusing is still possible.
+        # The raw block below is REQUIRED, not stylistic: bash array length is
+        # spelled with a brace-hash, which Jinja reads as a comment opener. Without
+        # the escape this template does not compile at all ("Missing end of comment
+        # tag") — a failure every satellite would inherit and none would see until
+        # it tried to release. Do not write the escape tag literally in a comment
+        # either: that opens a second raw block and silently swallows the rest of
+        # the file (measured while writing this, 2026-09-16).
         run: |
           shopt -s nullglob
           sdist=(dist/*-"${VERSION}".tar.gz)
@@ -221,7 +238,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Rerun-safe. `gh release create` fails outright when the tag already
-          # has a release, which is how `linkedin-publish v0.1.0` reads as a red
+          # has a release, which is the whole of `linkedin-publish v0.1.0`'s red
           # release run over a release that shipped perfectly well.
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG exists — refreshing its assets."
@@ -235,15 +252,17 @@ jobs:
 
       # NO auto-bump dispatch here, deliberately (ORG-296, 2026-09-13).
       #
-      # This file used to mint a `stromy-ci` App token and fire
-      # `repository_dispatch` at a hand-written consumer list. `POST
-      # /dispatches` returns 204 whether or not anything listens, so the list
-      # rotted invisibly — measured across the org, the receiver existed in ONE
-      # repo. The block could not help and could still fail: `asset-transport
-      # v0.7.0` published a perfectly good release and then went red on the
-      # token mint for this very step.
+      # This template used to ship a `repository_dispatch` fan-out driven by a
+      # `consumer_repos_to_notify` answer — a consumer list frozen into each
+      # satellite at scaffold time and updated by nobody afterwards. `POST
+      # /dispatches` returns 204 whether or not anything listens, so those lists
+      # rotted invisibly: measured across the org, the receiver existed in ONE
+      # repo, five named targets had none, and eight real consumers were named
+      # by no sender at all.
       #
-      # Pins are reconciled centrally by stromy-org's internal-lib-pins.yml,
-      # which DERIVES the consumer graph from every repo's own
-      # [tool.uv.sources] on each run. A library must not need to know who
-      # consumes it.
+      # Pins are reconciled centrally instead, by stromy-org's
+      # .github/workflows/internal-lib-pins.yml, which DERIVES the consumer graph
+      # from every repo's own [tool.uv.sources] on each run — and resolves
+      # `releases/latest`, never `tags`, so a tag that never became a release can
+      # never be proposed as anyone's pin. A library must not need to know who
+      # consumes it — a scaffold-time answer can never stay true.
