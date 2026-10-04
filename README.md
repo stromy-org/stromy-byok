@@ -82,7 +82,39 @@ with credential_scope(catalogue, resolved, scrub=True):
 # ambient environment restored exactly, including on exception
 ```
 
-## Validation is tri-state, per provider
+## Non-secret connections (v0.4.0)
+
+`ConnectionSpec` declares an adopter-owned kind and closed JSON metadata schema.
+`ConnectionRecord` holds an immutable JSON snapshot, schema/protocol versions and
+state. There are no pasted keys or `env_aliases`. Providers, tenant verification,
+mailbox/profile authority and effective permissions remain the adopting app's job.
+Metadata schemas use local references only and metadata is capped at 16 KiB.
+
+`ConnectionReader` reads the latest or a historical owned version.
+`ConnectionWriter.put_version` atomically appends `expected_version + 1`, with
+immutable connection ID, subject and kind. `revoke` appends a revoked fencing
+version; it does not claim provider permissions were removed. Before each effect,
+compare the current connection/grant version and active state with the pinned
+version. An old record whose historical state is active is not permission.
+
+`ConnectionGrantStore` is separate from pasted-key registration grants. Its
+atomic `consume` compares subject, service, kind, application, action, trusted
+callback, browser session, issuer and workflow while checking UTC expiry. It
+also binds connection ID and expected version for reconnect/disconnect; a
+disconnect without that fence is refused. GET
+only peeks; mismatches do not spend the legitimate grant. The grant lives for at
+most 15 minutes, and token/nonce/session are excluded from repr. Durable adapters
+store only a token hash and bind the one-use consumption transaction to their
+onboarding state. `assert_connection_grants_durable` refuses multiple replicas
+with a non-durable store.
+
+The in-memory connection/grant implementations are fixture/single-process aids.
+They do not provide production persistence, provider verification or tenant
+authorization. Adopted production stores must reproduce CAS, immutable identity,
+expiry and single-use behavior under genuine workload roles. Public `status()`
+omits metadata; detailed metadata is available only to authorized service roles.
+
+## Credential validation is tri-state, per provider
 
 There is no single global HTTP rule. Real read-only probes with invalid keys
 returned **401** from OpenAI, Apify and Hunter — but **400** from Gemini. So

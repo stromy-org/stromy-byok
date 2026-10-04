@@ -26,6 +26,24 @@ from stromy_byok.catalogue import (
     ProviderProbe,
     UnknownCredentialError,
 )
+from stromy_byok.connections import (
+    CONNECTION_PROTOCOL_VERSION,
+    MAX_METADATA_BYTES,
+    ConnectionError,
+    ConnectionGrant,
+    ConnectionGrantAction,
+    ConnectionGrantBinding,
+    ConnectionGrantStore,
+    ConnectionReader,
+    ConnectionRecord,
+    ConnectionSpec,
+    ConnectionState,
+    ConnectionWriter,
+    InMemoryConnectionGrantStore,
+    InMemoryConnectionStore,
+    assert_connection_grants_durable,
+    mint_connection_grant,
+)
 from stromy_byok.context import (
     credential_scope,
     last_credential_source,
@@ -81,6 +99,22 @@ from stromy_byok.validators import classify_status, validate_key, validate_key_a
 __version__ = _metadata_version("stromy-byok")
 
 __all__ = [
+    "CONNECTION_PROTOCOL_VERSION",
+    "MAX_METADATA_BYTES",
+    "ConnectionError",
+    "ConnectionGrant",
+    "ConnectionGrantAction",
+    "ConnectionGrantBinding",
+    "ConnectionGrantStore",
+    "ConnectionReader",
+    "ConnectionRecord",
+    "ConnectionSpec",
+    "ConnectionState",
+    "ConnectionWriter",
+    "InMemoryConnectionGrantStore",
+    "InMemoryConnectionStore",
+    "assert_connection_grants_durable",
+    "mint_connection_grant",
     "CATALOGUE_VERSION",
     "DEFAULT_TTL_SECONDS",
     "SECURITY_HEADERS",
