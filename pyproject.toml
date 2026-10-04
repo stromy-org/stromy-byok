@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "stromy-byok"
-version = "0.4.0"
+version = "0.4.1"
 description = "Client-neutral BYOK credential plane: split reader/writer stores, bound single-use registration grants, hardened registration routes and provider validators."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "William Masquelier", email = "william.masquelier@stromy.com.au" }]
 dependencies = [
-    "jsonschema>=4.18",
+    "jsonschema[format-nongpl]>=4.18",
     # The registration page is a pair of Starlette handlers the adopting app
     # mounts on its own router; Starlette arrives transitively with every
     # FastMCP consumer, but it is a real import here so it is declared.

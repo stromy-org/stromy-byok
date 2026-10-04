@@ -192,3 +192,19 @@ def test_schema_cannot_fetch_an_external_reference() -> None:
                 }
             ),
         )
+
+
+def test_datetime_formats_are_checked_with_required_format_dependencies() -> None:
+    schema = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {"verified_at": {"type": "string", "format": "date-time"}},
+    }
+    spec = ConnectionSpec("test", json.dumps(schema))
+    assert spec.encode_metadata({"verified_at": NOW.isoformat()})
+    for value in ("not-a-date", "2026-99-99T00:00:00Z", "2026-10-04T00:00:00"):
+        with pytest.raises(ConnectionError):
+            spec.encode_metadata({"verified_at": value})
+    schema["properties"]["verified_at"]["format"] = "unknown-format"
+    with pytest.raises(ConnectionError, match="unsupported formats"):
+        ConnectionSpec("test", json.dumps(schema))

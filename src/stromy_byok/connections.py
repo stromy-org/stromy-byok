@@ -95,6 +95,8 @@ class ConnectionSpec:
             if isinstance(item, dict):
                 entry = cast(dict[str, Any], item)
                 for key, value in entry.items():
+                    if key == "format" and value not in FormatChecker.checkers:
+                        raise ConnectionError("Connection schemas cannot declare unsupported formats")
                     if key in {"$ref", "$dynamicRef"} and isinstance(value, str) and not value.startswith("#"):
                         raise ConnectionError("Connection schemas cannot reference remote resources")
                     pending.append(value)

@@ -89,6 +89,8 @@ with credential_scope(catalogue, resolved, scrub=True):
 state. There are no pasted keys or `env_aliases`. Providers, tenant verification,
 mailbox/profile authority and effective permissions remain the adopting app's job.
 Metadata schemas use local references only and metadata is capped at 16 KiB.
+v0.4.1 declares the standard format-checking dependencies and refuses unknown
+formats: date-time and other format assertions cannot silently become annotations.
 
 `ConnectionReader` reads the latest or a historical owned version.
 `ConnectionWriter.put_version` atomically appends `expected_version + 1`, with
