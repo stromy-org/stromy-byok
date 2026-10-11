@@ -28,6 +28,7 @@ from stromy_byok.models import Subject
 CONNECTION_PROTOCOL_VERSION = 1
 MAX_METADATA_BYTES = 16_384
 _KIND = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
+_DIGEST = re.compile(r"^[0-9a-f]{64}$")
 
 
 class _MetadataValidator(Protocol):
@@ -218,6 +219,7 @@ class InMemoryConnectionStore:
 class ConnectionGrantAction(StrEnum):
     REGISTER = "register"
     DISCONNECT = "disconnect"
+    VERIFY = "verify"
 
 
 @dataclass(frozen=True, slots=True)
@@ -235,6 +237,10 @@ class ConnectionGrantBinding:
     workflow: str | None = None
     connection_id: str | None = None
     expected_version: int | None = None
+    # Verify only: sha256 of the server-validated parameters it checks (for
+    # example the selected scope). The provider owns their schema; this binds
+    # them so a swapped selection cannot spend the grant.
+    parameters_digest: str | None = None
 
     def __post_init__(self) -> None:
         if not all((self.service, self.app_id, self.session_id, self.issuer)) or not _KIND.fullmatch(self.kind):
@@ -247,6 +253,13 @@ class ConnectionGrantBinding:
             raise ConnectionError("Invalid connection grant version fence")
         if self.action == ConnectionGrantAction.DISCONNECT and self.connection_id is None:
             raise ConnectionError("Disconnect requires a bound connection and version")
+        if self.action == ConnectionGrantAction.VERIFY:
+            if self.connection_id is None:
+                raise ConnectionError("Verify requires a bound connection and version")
+            if not isinstance(self.parameters_digest, str) or not _DIGEST.fullmatch(self.parameters_digest):
+                raise ConnectionError("Verify requires a bound parameters digest")
+        elif self.parameters_digest is not None:
+            raise ConnectionError("Only verify binds a parameters digest")
         callback = urlsplit(self.callback_uri)
         if (
             callback.scheme != "https"

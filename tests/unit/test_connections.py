@@ -208,3 +208,37 @@ def test_datetime_formats_are_checked_with_required_format_dependencies() -> Non
     schema["properties"]["verified_at"]["format"] = "unknown-format"
     with pytest.raises(ConnectionError, match="unsupported formats"):
         ConnectionSpec("test", json.dumps(schema))
+
+
+def verify_binding(**changes) -> ConnectionGrantBinding:
+    fields = {"action": ConnectionGrantAction.VERIFY, "parameters_digest": "a" * 64}
+    return replace(binding(), **(fields | changes))
+
+
+def test_verify_binds_its_parameters_digest_and_never_spends_on_a_swap() -> None:
+    store = InMemoryConnectionGrantStore()
+    bound = verify_binding()
+    grant = mint_connection_grant(store, bound, now=NOW)
+    for forged in (replace(bound, parameters_digest="b" * 64), replace(bound, expected_version=2)):
+        assert store.consume(grant.token, forged, now=NOW) is None
+    assert store.consume(grant.token, bound, now=NOW) == grant
+
+
+@pytest.mark.parametrize(
+    ("changes", "message"),
+    [
+        ({"connection_id": None, "expected_version": None}, "Verify requires a bound connection"),
+        ({"parameters_digest": None}, "parameters digest"),
+        ({"parameters_digest": "A" * 64}, "parameters digest"),
+        ({"parameters_digest": "a" * 63}, "parameters digest"),
+    ],
+)
+def test_verify_requires_a_version_fence_and_a_digest(changes: dict, message: str) -> None:
+    with pytest.raises(ConnectionError, match=message):
+        verify_binding(**changes)
+
+
+@pytest.mark.parametrize("action", [ConnectionGrantAction.REGISTER, ConnectionGrantAction.DISCONNECT])
+def test_only_verify_carries_a_parameters_digest(action: ConnectionGrantAction) -> None:
+    with pytest.raises(ConnectionError, match="Only verify"):
+        replace(binding(), action=action, parameters_digest="a" * 64)
