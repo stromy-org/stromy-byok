@@ -1,0 +1,11 @@
+schema_version: 1
+deviations:
+  - path: .github/workflows/ci.yml
+    reason: >-
+      One native Linux context retains the complete 151-case population,
+      including 14 local registration-route transactions, locked all-extras
+      setup and strict Azure backend typing. The template has no required
+      integration-suite counter seam; explicit per-suite 134/3/14 floors
+      prevent reduced or missing execution from passing.
+    owner: stromy-org/stromy-byok
+    review_by: 2027-04-01

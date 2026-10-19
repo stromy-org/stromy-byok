@@ -1,0 +1,30 @@
+# Seed once. The repository owns additions; Copier never resets its floors.
+version: 1
+suites:
+  - id: unit
+    owner: stromy-org/stromy-byok
+    tier: deterministic
+    surface: pr
+    paths: ["tests/unit/**"]
+    source_inputs: ["src/**", "pyproject.toml", "uv.lock"]
+    required: true
+    minimum_executed: 134
+    execution_step: tests
+  - id: contract
+    owner: stromy-org/stromy-byok
+    tier: integration
+    surface: pr
+    paths: ["tests/contract/**"]
+    source_inputs: ["src/**", "pyproject.toml", "uv.lock"]
+    required: true
+    minimum_executed: 3
+    execution_step: contract
+  - id: routes
+    owner: stromy-org/stromy-byok
+    tier: deterministic
+    surface: pr
+    paths: ["tests/integration/**"]
+    source_inputs: ["src/**", "tests/**", "pyproject.toml", "uv.lock"]
+    required: true
+    minimum_executed: 14
+    execution_step: tests
