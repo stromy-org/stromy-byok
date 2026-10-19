@@ -8,7 +8,7 @@ suites:
     paths: ["tests/unit/**"]
     source_inputs: ["src/**", "pyproject.toml", "uv.lock"]
     required: true
-    minimum_executed: 132
+    minimum_executed: 134
     execution_step: tests
   - id: contract
     owner: stromy-org/stromy-byok
