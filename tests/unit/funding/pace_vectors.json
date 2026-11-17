@@ -1,0 +1,138 @@
+{
+ "schema": "funding-pace-vectors-v1",
+ "description": "Pace vectors for stromy_byok.funding.pace, merged from the two former byte-identical copies. Synthetic ids.",
+ "base_row": {
+  "id": "vendor-a-credits",
+  "kind": "credit-allowance",
+  "per_cycle": 200.0,
+  "credits_left": 191.81,
+  "used_usd": 8.19,
+  "window_start": "2026-10-28T00:00:00Z",
+  "grant_expires_at": "2026-11-17T00:00:00Z"
+ },
+ "vectors": [
+  {
+   "name": "live-2026-11-11-surplus",
+   "now": "2026-11-11T12:00:00Z",
+   "row": {},
+   "state": "surplus"
+  },
+  {
+   "name": "heavy-month-short",
+   "now": "2026-11-11T12:00:00Z",
+   "row": {
+    "credits_left": 10.0,
+    "used_usd": 190.0
+   },
+   "state": "short"
+  },
+  {
+   "name": "on-pace-small-remainder",
+   "now": "2026-11-11T12:00:00Z",
+   "row": {
+    "credits_left": 60.0,
+    "used_usd": 140.0
+   },
+   "state": "on-pace"
+  },
+  {
+   "name": "just-above-floor-surplus",
+   "now": "2026-11-16T00:00:00Z",
+   "row": {
+    "credits_left": 30.0,
+    "used_usd": 0.0
+   },
+   "state": "surplus"
+  },
+  {
+   "name": "below-floor-on-pace",
+   "now": "2026-11-16T00:00:00Z",
+   "row": {
+    "credits_left": 19.0,
+    "used_usd": 0.0
+   },
+   "state": "on-pace"
+  },
+  {
+   "name": "day-zero-elapsed-floor",
+   "now": "2026-10-28T06:00:00Z",
+   "row": {
+    "credits_left": 200.0,
+    "used_usd": 0.0
+   },
+   "state": "surplus"
+  },
+  {
+   "name": "expired",
+   "now": "2026-11-17T00:00:01Z",
+   "row": {},
+   "state": "unknown"
+  },
+  {
+   "name": "before-window",
+   "now": "2026-10-27T00:00:00Z",
+   "row": {},
+   "state": "unknown"
+  },
+  {
+   "name": "missing-used",
+   "now": "2026-11-11T12:00:00Z",
+   "row": {
+    "used_usd": null
+   },
+   "state": "unknown"
+  },
+  {
+   "name": "negative-left",
+   "now": "2026-11-11T12:00:00Z",
+   "row": {
+    "credits_left": -1
+   },
+   "state": "unknown"
+  },
+  {
+   "name": "boolean-left",
+   "now": "2026-11-11T12:00:00Z",
+   "row": {
+    "credits_left": true
+   },
+   "state": "unknown"
+  },
+  {
+   "name": "naive-expiry",
+   "now": "2026-11-11T12:00:00Z",
+   "row": {
+    "grant_expires_at": "2026-11-17T00:00:00"
+   },
+   "state": "unknown"
+  },
+  {
+   "name": "missing-expiry",
+   "now": "2026-11-11T12:00:00Z",
+   "row": {
+    "grant_expires_at": null
+   },
+   "state": "unknown"
+  },
+  {
+   "name": "large-grant-floor-is-ten-percent",
+   "now": "2026-11-16T00:00:00Z",
+   "row": {
+    "per_cycle": 500.0,
+    "credits_left": 45.0,
+    "used_usd": 0.0
+   },
+   "state": "on-pace"
+  },
+  {
+   "name": "large-grant-above-ten-percent",
+   "now": "2026-11-16T00:00:00Z",
+   "row": {
+    "per_cycle": 500.0,
+    "credits_left": 55.0,
+    "used_usd": 0.0
+   },
+   "state": "surplus"
+  }
+ ]
+}
