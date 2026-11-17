@@ -116,6 +116,40 @@ authorization. Adopted production stores must reproduce CAS, immutable identity,
 expiry and single-use behavior under genuine workload roles. Public `status()`
 omits metadata; detailed metadata is available only to authorized service roles.
 
+## Funding contract (v0.6.0)
+
+`stromy_byok.funding` answers, for any adopter, which free API credit grant pays
+for a call, how fast each grant is burning, and which one serves each model
+tier. It carries logic only: the register (a `{"schema": "subscriptions-v1",
+"subscriptions": [...]}` document of `credit-allowance` entries), the capture,
+the clock and key presence are inputs.
+
+- `sources(register, tenant=..., now=..., vendor=None)`: a tenant's funding
+  sources, soonest expiry first. Another tenant's source is never returned. Each
+  carries its own inference `key_ref` (an env name locally, or a closed-catalogue
+  credential id when hosted) and optional `admin_ref`.
+- Grant windows: an observed grant (`allowance.grant`) that has not expired is
+  current. Otherwise `allowance.recurrence {per_cycle_usd, min_period_days}`
+  forecasts the one immediate successor of the latest observed expiry. A
+  forecast is reporting only: `decide` HOLDs it as `recurring-unconfirmed`, and
+  an expired forecast is never renewed again.
+- `decide(...)`: the conservative guard over the full capture envelope (schema,
+  status, age, register digest, exact grant identity and cap, coverage, reserve).
+  OK only when every check passes; every failure is a named HOLD.
+- `pace(row, now)`: `surplus` / `on-pace` / `short` / `unknown` from the
+  projected unused balance at expiry.
+- `order(candidates, now=...)`: per tier, the soonest-expiring admitted grant.
+  A `surplus` grant may serve every tier its route allows; any other pace only
+  `smart` and `frontier`. A tier nobody may serve maps to None, so the
+  adopter's own fallback chain serves it.
+- `costs`: bounded readers for the Anthropic Admin cost and usage reports (US
+  cents) and OpenAI's `/v1/organization/costs` (USD), with host, path and query
+  allowlists, no redirects, all-pages-or-nothing pagination and fixed redacted
+  errors. `allowance_row` and `capture_envelope` build the capture the guard reads.
+
+A reserve is not a reservation: two callers can read the same balance. Keep
+provider spend limits as the aggregate backstop.
+
 ## Credential validation is tri-state, per provider
 
 There is no single global HTTP rule. Real read-only probes with invalid keys

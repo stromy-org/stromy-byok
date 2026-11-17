@@ -1,0 +1,3137 @@
+{
+ "_doc": "Shared admission vectors for stromy_byok.funding.decide, merged from the two former copies (operator scripts and application reader), which were byte-identical. Synthetic ids; no real register data.",
+ "schema": "credits-guard-vectors-v1",
+ "vectors": [
+  {
+   "name": "ok",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "OK",
+    "code": "ok"
+   }
+  },
+  {
+   "name": "ok-reserve-exactly-met",
+   "note": "30 - 5 == 25",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 30.0,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "OK",
+    "code": "ok"
+   }
+  },
+  {
+   "name": "hold-reserve-short-by-a-cent",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 29.99,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "reserve"
+   }
+  },
+  {
+   "name": "hold-zero-left",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 0.0,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "reserve"
+   }
+  },
+  {
+   "name": "ok-age-exactly-36h",
+   "note": "12:00 minus 36h is 2026-10-28T00:00Z",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-28T00:00:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "OK",
+    "code": "ok"
+   }
+  },
+  {
+   "name": "hold-age-36h-and-a-second",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-27T23:59:59Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-stale"
+   }
+  },
+  {
+   "name": "hold-age-37h",
+   "note": "removing freshness validation fails this vector",
+   "input": {
+    "now": "2026-10-30T22:20:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-stale"
+   }
+  },
+  {
+   "name": "hold-capture-in-future",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T12:00:01Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-future"
+   }
+  },
+  {
+   "name": "hold-capture-naive-time",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-time"
+   }
+  },
+  {
+   "name": "hold-capture-malformed-time",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "yesterday",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-time"
+   }
+  },
+  {
+   "name": "hold-capture-missing",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": null
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-missing"
+   }
+  },
+  {
+   "name": "hold-capture-schema",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v0",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-schema"
+   }
+  },
+  {
+   "name": "hold-capture-not-ok",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "NOT-RUN",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-status"
+   }
+  },
+  {
+   "name": "hold-register-missing",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": null,
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-missing"
+   }
+  },
+  {
+   "name": "hold-register-schema",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v0",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-schema"
+   }
+  },
+  {
+   "name": "hold-register-entry-absent",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": []
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-entry"
+   }
+  },
+  {
+   "name": "hold-register-entry-duplicated",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      },
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-entry"
+   }
+  },
+  {
+   "name": "hold-disabled-against-unchanged-positive-capture",
+   "note": "per_cycle 0 always holds, even beside yesterday's positive capture of the same grant",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 0,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "disabled"
+   }
+  },
+  {
+   "name": "hold-per-cycle-negative",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": -200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-invalid"
+   }
+  },
+  {
+   "name": "hold-per-cycle-string",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": "200",
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-invalid"
+   }
+  },
+  {
+   "name": "hold-per-cycle-boolean",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": true,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-invalid"
+   }
+  },
+  {
+   "name": "hold-no-grant",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "no-grant"
+   }
+  },
+  {
+   "name": "hold-grant-window-inverted",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-10-27T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-invalid"
+   }
+  },
+  {
+   "name": "hold-grant-not-started",
+   "note": "",
+   "input": {
+    "now": "2026-10-27T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-27T11:00:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "grant-not-started"
+   }
+  },
+  {
+   "name": "ok-last-second-of-grant",
+   "note": "",
+   "input": {
+    "now": "2026-11-16T23:59:59Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-11-16T20:00:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "OK",
+    "code": "ok"
+   }
+  },
+  {
+   "name": "hold-grant-expired-at-the-instant",
+   "note": "no reset is inferred from renewal day 17",
+   "input": {
+    "now": "2026-11-17T00:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-11-16T20:00:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "grant-expired"
+   }
+  },
+  {
+   "name": "hold-register-changed-since-capture",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-changed"
+   }
+  },
+  {
+   "name": "hold-register-sha-unknown",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": null,
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "register-changed"
+   }
+  },
+  {
+   "name": "hold-capture-row-absent",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": []
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-row"
+   }
+  },
+  {
+   "name": "hold-capture-row-duplicated",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      },
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-row"
+   }
+  },
+  {
+   "name": "hold-row-rejected",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "rejected",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": null,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "not-live"
+   }
+  },
+  {
+   "name": "hold-row-declared",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "declared",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "not-live"
+   }
+  },
+  {
+   "name": "hold-row-not-estimated",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "not-estimated"
+   }
+  },
+  {
+   "name": "hold-stale-grant-id",
+   "note": "a capture of a previous grant never funds the current one",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-09-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "grant-mismatch"
+   }
+  },
+  {
+   "name": "hold-grant-window-moved",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-17T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "grant-mismatch"
+   }
+  },
+  {
+   "name": "hold-grant-expiry-moved",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-18T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "grant-mismatch"
+   }
+  },
+  {
+   "name": "hold-grant-amount-lowered",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 150,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "grant-mismatch"
+   }
+  },
+  {
+   "name": "hold-left-string",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": "111.5",
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-invalid"
+   }
+  },
+  {
+   "name": "hold-left-negative",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": -1,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-invalid"
+   }
+  },
+  {
+   "name": "hold-left-boolean",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": true,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "capture-invalid"
+   }
+  },
+  {
+   "name": "hold-priority-tier-uncosted",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": true
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "uncosted-usage"
+   }
+  },
+  {
+   "name": "hold-priority-tier-coverage-unknown",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z"
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "uncosted-usage"
+   }
+  },
+  {
+   "name": "hold-need-negative",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": -1,
+    "reserve_usd": 25,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "invalid-request"
+   }
+  },
+  {
+   "name": "hold-reserve-boolean",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": true,
+    "max_age_hours": 36,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "invalid-request"
+   }
+  },
+  {
+   "name": "hold-max-age-zero",
+   "note": "",
+   "input": {
+    "now": "2026-10-29T12:00:00Z",
+    "allowance": "vendor-a-credits",
+    "need_usd": 5,
+    "reserve_usd": 25,
+    "max_age_hours": 0,
+    "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "register": {
+     "schema": "subscriptions-v1",
+     "subscriptions": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "allowance": {
+        "unit": "usd_api_credit",
+        "per_cycle": 200,
+        "grant": {
+         "id": "grant-2026-10-28",
+         "amount_usd": 200,
+         "observed_on": "2026-10-28",
+         "starts_at": "2026-10-28T00:00:00Z",
+         "expires_at": "2026-11-17T00:00:00Z"
+        }
+       },
+       "probe": {
+        "kind": "vendor-cost-report",
+        "env": "VENDOR_A_ADMIN_KEY"
+       }
+      }
+     ]
+    },
+    "capture": {
+     "schema": "subscriptions-usage-v1",
+     "status": "OK",
+     "reason": "",
+     "captured_at": "2026-10-29T09:20:00Z",
+     "register_sha": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "providers": [
+      {
+       "id": "vendor-a-credits",
+       "vendor": "VendorA",
+       "kind": "credit-allowance",
+       "read": "live",
+       "http": null,
+       "reason": "",
+       "unit": "usd_api_credit",
+       "credits_left": 111.5,
+       "per_cycle": 200.0,
+       "used_usd": 88.5,
+       "balance_basis": "estimated",
+       "lapses_on": "2026-11-16",
+       "renews_on": null,
+       "verified_on": "2026-10-29",
+       "grant_id": "grant-2026-10-28",
+       "grant_expires_at": "2026-11-17T00:00:00Z",
+       "window_start": "2026-10-28T00:00:00Z",
+       "window_end": "2026-10-29T09:20:00Z",
+       "uncosted_priority_tier": false
+      }
+     ]
+    }
+   },
+   "expect": {
+    "decision": "HOLD",
+    "code": "invalid-request"
+   }
+  }
+ ]
+}
